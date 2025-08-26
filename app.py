@@ -30,7 +30,7 @@ INITIAL_CHATBOT_CONTEXT = [
     },
     {
         "role": "model",
-        "parts": ["Baik! Saya akan memberikan resep yang anda inginkan."]
+        "parts": ["Halo saya SUKRI asisten masak anda!, Saya akan memberikan resep yang anda inginkan."]
     }
 ]
 
@@ -95,3 +95,4 @@ if user_input:
                     st.error("Maaf, saya tidak bisa memberikan balasan. Respons API kosong atau tidak valid.")
             except Exception as e:
                 st.error(f"Terjadi kesalahan: {e}")
+
