@@ -9,7 +9,7 @@ import os
 # Mengambil API key dari Streamlit Secrets untuk keamanan
 # Pastikan Anda sudah mengatur variabel ini di Streamlit Cloud.
 try:
-    API_KEY = st.secrets["GEMINI_API_KEY"]
+    API_KEY = st.secrets["AIzaSyBWzMBC6hVzvooktYrFkO5fvrDuJKVxqio"]
 except KeyError:
     st.error("API Key Gemini tidak ditemukan. Pastikan Anda telah menambahkannya di Streamlit Secrets.")
     st.stop()
@@ -85,3 +85,4 @@ if user_input:
                     st.error("Maaf, saya tidak bisa memberikan balasan. Respons API kosong atau tidak valid.")
             except Exception as e:
                 st.error(f"Terjadi kesalahan: {e}")
+
