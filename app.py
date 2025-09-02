@@ -6,21 +6,23 @@ import os
 # PENGATURAN API KEY DAN MODEL
 # ==============================================================================
 
-# Mengambil API key dari Streamlit Secrets untuk keamanan
-# Pastikan Anda sudah mengatur variabel ini di Streamlit Cloud.
+# Mengambil API key dari Streamlit Secrets atau variabel lingkungan.
+# Lebih aman daripada menuliskannya langsung di kode.
+# Pastikan Anda telah mengonfigurasi secrets di Streamlit Cloud.
 try:
-    API_KEY = st.secrets["AIzaSyBWzMBC6hVzvooktYrFkO5fvrDuJKVxqio"]
+    API_KEY = st.secrets["GEMINI_API_KEY"]
 except KeyError:
-    st.error("API Key Gemini tidak ditemukan. Pastikan Anda telah menambahkannya di Streamlit Secrets.")
+    st.error("API Key Gemini tidak ditemukan di Streamlit Secrets.")
+    st.info("Silakan tambahkan `GEMINI_API_KEY` di Streamlit Secrets.")
     st.stop()
 
+# Nama model Gemini yang akan digunakan.
 MODEL_NAME = 'gemini-1.5-flash'
 
 # ==============================================================================
 # KONTEKS AWAL CHATBOT
 # ==============================================================================
 
-# Konteks awal untuk percakapan chatbot
 INITIAL_CHATBOT_CONTEXT = [
     {
         "role": "user",
@@ -33,12 +35,13 @@ INITIAL_CHATBOT_CONTEXT = [
 ]
 
 # ==============================================================================
-# APLIKASI STREAMLIT
+# FUNGSI UTAMA APLIKASI STREAMLIT
 # ==============================================================================
 
+# Judul aplikasi
 st.title("👨‍🍳 Ahli Resep Masakan")
 
-# Konfigurasi model Gemini
+# Konfigurasi Gemini API
 try:
     genai.configure(api_key=API_KEY)
     model = genai.GenerativeModel(
@@ -56,20 +59,26 @@ except Exception as e:
 if "messages" not in st.session_state:
     st.session_state.messages = INITIAL_CHATBOT_CONTEXT.copy()
 
-# Tampilkan riwayat pesan di antarmuka
+# Tampilkan riwayat pesan
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["parts"][0])
+    if message["role"] == "user":
+        with st.chat_message("user"):
+            st.markdown(message["parts"][0])
+    elif message["role"] == "model":
+        with st.chat_message("assistant"):
+            st.markdown(message["parts"][0])
 
 # Tangani input dari pengguna
 user_input = st.chat_input("Ketik di sini untuk bertanya...")
 
 if user_input:
-    # Tambahkan input pengguna ke riwayat dan tampilkan
+    # Tambahkan input pengguna ke riwayat
     st.session_state.messages.append({"role": "user", "parts": [user_input]})
+
+    # Tampilkan pesan pengguna
     with st.chat_message("user"):
         st.markdown(user_input)
-
+    
     # Kirim riwayat chat ke model
     chat = model.start_chat(history=st.session_state.messages)
     
@@ -80,10 +89,9 @@ if user_input:
                 response = chat.send_message(user_input, request_options={"timeout": 60})
                 if response and response.text:
                     st.markdown(response.text)
+                    # Tambahkan respons ke riwayat chat
                     st.session_state.messages.append({"role": "model", "parts": [response.text]})
                 else:
                     st.error("Maaf, saya tidak bisa memberikan balasan. Respons API kosong atau tidak valid.")
             except Exception as e:
                 st.error(f"Terjadi kesalahan: {e}")
-
-
